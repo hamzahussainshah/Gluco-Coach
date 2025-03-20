@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gluco_coach/ui/common/app_colors.dart';
 import 'package:gluco_coach/ui/widgets/custom_elevated_button.dart';
 import 'package:gluco_coach/ui/widgets/custom_text_field.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -29,64 +30,101 @@ class LoginView extends StackedView<LoginViewModel> {
           backgroundColor: Theme.of(context).colorScheme.background,
           body: Container(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Login',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 20),
-                CustomTextField(
-                  hintText: 'Email',
-                  controller: viewModel.emailController,
-                ),
-                20.verticalSpace,
-                CustomTextField(
-                  hintText: 'Password',
-                  controller: viewModel.passwordController,
-                ),
-                5.verticalSpace,
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'Forgot Password?',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+            child: Form(
+              key: viewModel.formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Login',
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                ),
-                10.verticalSpace,
-                CustomElevatedButton(
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    viewModel.login();
-                  },
-                  text: 'Login',
-                ),
-                20.verticalSpace,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Don\'t have an account?',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                  const SizedBox(height: 20),
+                  CustomTextField(
+                    keyboardType: TextInputType.emailAddress,
+                    hintText: 'Email',
+                    controller: viewModel.emailController,
+                    validate: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  20.verticalSpace,
+                  CustomTextField(
+                    obscure: viewModel.obscurePassword ? true : false,
+                    onTapSuffix: () {
+                      viewModel.togglePasswordVisibility();
+                    },
+                    suffixIcon: Icon(
+                      viewModel.obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.tealDark,
                     ),
-                    10.horizontalSpace,
-                    GestureDetector(
-                      onTap: () {
-                        viewModel.navigateToSignUp();
-                      },
-                      child: Text(
-                        'Sign Up',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                    hintText: 'Password',
+                    controller: viewModel.passwordController,
+                    validate: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  5.verticalSpace,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Forgot Password?',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                    ),
+                  ),
+                  10.verticalSpace,
+                  CustomElevatedButton(
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      if (viewModel.formKey.currentState!.validate()) {
+                        viewModel.login();
+                      }
+                    },
+                    text: 'Login',
+                  ),
+                  20.verticalSpace,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Don\'t have an account?',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      10.horizontalSpace,
+                      GestureDetector(
+                        onTap: () {
+                          viewModel.navigateToSignUp();
+                        },
+                        child: Text(
+                          'Sign Up',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ));

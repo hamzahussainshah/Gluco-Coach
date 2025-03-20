@@ -48,7 +48,7 @@ class QuestionariesView extends StackedView<QuestionariesViewModel> {
     return LinearProgressIndicator(
       value: viewModel.currentQuestionIndex / viewModel.questions.length,
       backgroundColor: Colors.grey[300],
-      valueColor: AlwaysStoppedAnimation(AppColors.red600),
+      valueColor: AlwaysStoppedAnimation(AppColors.tealDark),
     );
   }
 
@@ -86,7 +86,7 @@ class QuestionariesView extends StackedView<QuestionariesViewModel> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 3,
         color: isSelected
-            ? AppColors.red300
+            ? AppColors.tealLight
             : Colors.white, // Change background color when selected
         child: ListTile(
           title: Text(option,
@@ -118,7 +118,7 @@ class QuestionariesView extends StackedView<QuestionariesViewModel> {
     return ElevatedButton(
       onPressed: viewModel.isNextButtonEnabled ? viewModel.nextQuestion : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.red500,
+        backgroundColor: AppColors.tealDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: const Padding(

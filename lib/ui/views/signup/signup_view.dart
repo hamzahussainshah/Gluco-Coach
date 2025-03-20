@@ -29,58 +29,90 @@ class SignupView extends StackedView<SignupViewModel> {
           backgroundColor: Theme.of(context).colorScheme.background,
           body: Container(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Sign Up',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                20.verticalSpace,
-                CustomTextField(
-                  hintText: 'Email',
-                  controller: viewModel.emailController,
-                ),
-                20.verticalSpace,
-                CustomTextField(
-                  hintText: 'Name',
-                  controller: viewModel.nameController,
-                ),
-                20.verticalSpace,
-                CustomTextField(
-                  hintText: 'Password',
-                  controller: viewModel.passwordController,
-                ),
-                20.verticalSpace,
-                CustomElevatedButton(
-                  onPressed: () {
-                    viewModel.signUp();
-                  },
-                  text: 'Sign Up',
-                ),
-                20.verticalSpace,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Already have an account?',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    10.horizontalSpace,
-                    GestureDetector(
-                      onTap: () {
-                        viewModel.navigateToLogin();
-                      },
-                      child: Text(
-                        'Login',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+            child: Form(
+              key: viewModel.formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Sign Up',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  20.verticalSpace,
+                  CustomTextField(
+                    hintText: 'Email',
+                    controller: viewModel.emailController,
+                    validate: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  20.verticalSpace,
+                  CustomTextField(
+                    hintText: 'Name',
+                    controller: viewModel.nameController,
+                    validate: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                  ),
+                  20.verticalSpace,
+                  CustomTextField(
+                    hintText: 'Password',
+                    controller: viewModel.passwordController,
+                    validate: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters long';
+                      }
+                      return null;
+                    },
+                  ),
+                  20.verticalSpace,
+                  CustomElevatedButton(
+                    onPressed: () {
+                      if (viewModel.formKey.currentState!.validate()) {
+                        viewModel.signUp();
+                      }
+                    },
+                    text: 'Sign Up',
+                  ),
+                  20.verticalSpace,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account?',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      10.horizontalSpace,
+                      GestureDetector(
+                        onTap: () {
+                          viewModel.navigateToLogin();
+                        },
+                        child: Text(
+                          'Login',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ));

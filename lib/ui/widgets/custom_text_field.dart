@@ -16,6 +16,7 @@ class CustomTextField extends StatelessWidget {
   final bool obscure;
   final TextInputType? keyboardType;
   final void Function()? onTap;
+  final void Function()? onTapSuffix;
   final String? suffixText;
   final Function(String)? onFieldSubmitted;
   const CustomTextField({
@@ -33,6 +34,7 @@ class CustomTextField extends StatelessWidget {
     this.maxLines,
     this.focusNode,
     this.onFieldSubmitted,
+    this.onTapSuffix,
   });
 
   @override
@@ -81,14 +83,19 @@ class CustomTextField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           // borderSide: const BorderSide(color: AppColors.red300),
-          borderSide: const BorderSide(color: AppColors.red300),
+          borderSide: const BorderSide(color: AppColors.tealLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: const BorderSide(color: AppColors.gray300),
         ),
         prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
+        suffixIcon: suffixIcon != null
+            ? GestureDetector(
+                onTap: onTapSuffix,
+                child: suffixIcon,
+              )
+            : null,
       ),
     );
   }

@@ -60,7 +60,7 @@ class CustomDrawer extends StackedView<CustomDrawerModel> {
                 Text(
                   'Gluco Coach ',
                   style: AppTextStyles.xlSemibold.copyWith(
-                    color: AppColors.red500,
+                    color: AppColors.tealDark,
                   ),
                 ),
               ],

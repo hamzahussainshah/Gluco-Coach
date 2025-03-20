@@ -40,14 +40,14 @@ class CustomElevatedButton extends StatelessWidget {
         backgroundColor: isDisabled
             ? AppColors.gray100
             : isBgColor
-                ? backgroundColor ?? AppColors.red500
+                ? backgroundColor ?? AppColors.tealDark
                 : AppColors.whiteColor,
         minimumSize: minimumSize ?? Size(double.infinity, 50.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100.r),
           side: isDisabled
               ? BorderSide.none
-              : BorderSide(color: borderColor ?? AppColors.red500),
+              : BorderSide(color: borderColor ?? AppColors.tealDark),
         ),
         elevation: 0,
       ),
@@ -69,7 +69,7 @@ class CustomElevatedButton extends StatelessWidget {
                   color: isDisabled
                       ? AppColors.gray300
                       : !isBgColor
-                          ? textColor ?? AppColors.red500
+                          ? textColor ?? AppColors.tealDark
                           : AppColors.whiteColor,
                 ),
           ),

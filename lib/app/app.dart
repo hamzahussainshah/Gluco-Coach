@@ -11,6 +11,9 @@ import 'package:gluco_coach/ui/views/questionaries/questionaries_view.dart';
 import 'package:gluco_coach/ui/views/dashboard/dashboard_view.dart';
 import 'package:gluco_coach/ui/views/today/today_view.dart';
 import 'package:gluco_coach/ui/views/feed/feed_view.dart';
+import 'package:gluco_coach/ui/views/workout_plan/workout_plan_view.dart';
+import 'package:gluco_coach/ui/views/meal_plan/meal_plan_view.dart';
+import 'package:gluco_coach/ui/views/stress_management/stress_management_view.dart';
 // @stacked-import
 
 @StackedApp(
@@ -24,6 +27,9 @@ import 'package:gluco_coach/ui/views/feed/feed_view.dart';
     MaterialRoute(page: DashboardView),
     MaterialRoute(page: TodayView),
     MaterialRoute(page: FeedView),
+    MaterialRoute(page: WorkoutPlanView),
+    MaterialRoute(page: MealPlanView),
+    MaterialRoute(page: StressManagementView),
 // @stacked-route
   ],
   dependencies: [

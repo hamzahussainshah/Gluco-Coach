@@ -22,7 +22,7 @@ class CustomNavScreensAppBar extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.red500,
+      backgroundColor: AppColors.tealDark,
       leadingWidth: 24.w + 24.w,
       leading: Padding(
         padding: EdgeInsets.only(left: 24.w),

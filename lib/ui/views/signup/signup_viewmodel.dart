@@ -14,6 +14,8 @@ class SignupViewModel extends BaseViewModel {
   TextEditingController emailController = TextEditingController();
   TextEditingController nameController = TextEditingController();
 
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   Future<void> signUp() async {
     setBusy(true); // Show loading state
 

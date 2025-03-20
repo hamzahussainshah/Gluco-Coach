@@ -22,30 +22,27 @@ class DashboardViewModel extends IndexTrackingViewModel {
 
   /// List of Screens for BottomNavigationBar
   final List<Widget> bottomNavScreens = [
-    FeedView(), // Screen 0
-    TodayView(), // Screen 1
+    TodayView(), // Screen 0
+    FeedView(), // Screen 1
   ];
   final List<String> appBarTitles = [
-    "Statistics",
-    "Add Sales",
-    "My Sales",
-    "Create Customer",
+    "Today",
+    "Feed",
   ];
 
   /// Bottom Navigation Bar Items
   List<BottomNavigationBarItem> getBottomNavBarItems() {
     return const [
       BottomNavigationBarItem(
-        icon: Icon(Icons.feed),
-        label: "Feed",
-      ),
-      BottomNavigationBarItem(
         icon: Icon(Icons.today),
         label: "Today",
       ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.feed),
+        label: "Feed",
+      ),
     ];
   }
-
 
   void logOut() {
     _navigationService.replaceWithLoginView();

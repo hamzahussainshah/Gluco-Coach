@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color red600 = Color(0xFFE50233);
-  static const Color red500 = Color(0xFFFF003B);
-  static const Color red300 = Color(0xFFFF5162);
-  static const Color red200 = Color(0xFFFFAAB0);
-  static const Color red100 = Color(0xFFFFCED0);
-  static const Color red50 = Color(0xFFFFEFF1);
+  static const Color tealLight = Color(0xFF66D2CE);
+  static const Color tealDark = Color(0xFF2DAA9E);
 
   // Gray colors shades
 
@@ -26,21 +22,4 @@ class AppColors {
   static const Color whiteColor = Color(0xFFFFFFFF);
 
   static const Color blackColor = Color(0xFF121212);
-
-  //  Cursor Color
-  static const Color cursorColor = Color(0xFFADAEBA);
-
-//   Gray Color
-  static const Color grayTextColor = Color(0xFF71717A);
-
-// Status bar color
-  static const Color statusBarGrayColor = Color(0xFFD4D4D8);
-
-//   progress page status color
-  static const Color redTabBarColor = Color(0xFFFE3756);
-  static const Color tabBarUnSelectedColor = Color(0xFF9E9E9E);
-
-//   Gray color light
-  static const Color lightGrayTextColor = Color(0xFF616161);
-  static const Color d9Color = Color(0xFFD9D9D9);
 }

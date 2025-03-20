@@ -40,7 +40,7 @@ class CustomIconTextField extends StatelessWidget {
         ),
         hintText: hintText,
         hintStyle: AppTextStyles.mRegular.copyWith(
-          color: AppColors.cursorColor,
+          color: AppColors.tealLight,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),

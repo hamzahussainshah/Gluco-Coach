@@ -31,7 +31,7 @@ class DashboardView extends StackedView<DashboardViewModel> {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedLabelStyle: AppTextStyles.xsRegular2.copyWith(
-          color: AppColors.red600,
+          color: AppColors.tealDark,
           fontSize: 11.sp,
           fontWeight: FontWeight.w500,
         ),
@@ -39,7 +39,7 @@ class DashboardView extends StackedView<DashboardViewModel> {
           color: AppColors.gray400,
           fontSize: 11.sp,
         ),
-        selectedItemColor: AppColors.red600,
+        selectedItemColor: AppColors.tealDark,
         unselectedItemColor: AppColors.gray400,
       ),
     );
