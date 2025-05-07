@@ -21,7 +21,7 @@ class LoginView extends StackedView<LoginViewModel> {
     return ModalProgressHUD(
         color: Colors.black54,
         opacity: 1,
-        progressIndicator: LoadingAnimationWidget.newtonCradle(
+        progressIndicator: LoadingAnimationWidget.discreteCircle(
           color: Colors.blueAccent,
           size: 50,
         ),
@@ -79,13 +79,18 @@ class LoginView extends StackedView<LoginViewModel> {
                     },
                   ),
                   5.verticalSpace,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'Forgot Password?',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                  InkWell(
+                    onTap: () {
+                      viewModel.navigateToForgotPasswordView();
+                    },
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Forgot Password?',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
                     ),
                   ),
                   10.verticalSpace,

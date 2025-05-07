@@ -20,35 +20,61 @@ class ForgotPasswordView extends StackedView<ForgotPasswordViewModel> {
     return ModalProgressHUD(
       color: Colors.black54,
       opacity: 1,
-      progressIndicator: LoadingAnimationWidget.newtonCradle(
+      progressIndicator: LoadingAnimationWidget.discreteCircle(
         color: Colors.blueAccent,
         size: 50,
       ),
       inAsyncCall: viewModel.isBusy,
       child: Scaffold(
-        body: SafeArea(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              children: [
-                Text(
-                  'Forgot Password',
-                  style: Theme.of(context).textTheme.titleLarge,
+        body: ModalProgressHUD(
+          color: Colors.black54,
+          opacity: 1,
+          progressIndicator: LoadingAnimationWidget.discreteCircle(
+            color: Colors.blueAccent,
+            size: 50,
+          ),
+          inAsyncCall: viewModel.isBusy,
+          child: SafeArea(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Form(
+                key: viewModel.formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Forgot Password',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    20.verticalSpace,
+                    Text('Password reset link will be sent to your email.'),
+                    CustomTextField(
+                      hintText: 'Email',
+                      controller: viewModel.emailController,
+                      validate: (value) {
+                        if (viewModel.emailController.text.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                            .hasMatch(viewModel.emailController.text)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    20.verticalSpace,
+                    CustomElevatedButton(
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        if (viewModel.formKey.currentState!.validate()) {
+                          viewModel.sendEmail();
+                        }
+                      },
+                      text: 'Send Email',
+                    ),
+                  ],
                 ),
-                20.verticalSpace,
-                Text('Password reset link will be sent to your email.'),
-                CustomTextField(
-                  hintText: 'Email',
-                  controller: viewModel.emailController,
-                ),
-                20.verticalSpace,
-                CustomElevatedButton(
-                  onPressed: () {
-                    viewModel.forgotPassword();
-                  },
-                  text: 'Send Email',
-                ),
-              ],
+              ),
             ),
           ),
         ),

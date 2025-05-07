@@ -14,6 +14,9 @@ import 'package:gluco_coach/ui/views/feed/feed_view.dart';
 import 'package:gluco_coach/ui/views/workout_plan/workout_plan_view.dart';
 import 'package:gluco_coach/ui/views/meal_plan/meal_plan_view.dart';
 import 'package:gluco_coach/ui/views/stress_management/stress_management_view.dart';
+import 'package:gluco_coach/ui/views/log_exercise/log_exercise_view.dart';
+import 'package:gluco_coach/services/local_storage_service.dart';
+import 'package:gluco_coach/ui/views/generate_report/generate_report_view.dart';
 // @stacked-import
 
 @StackedApp(
@@ -30,13 +33,16 @@ import 'package:gluco_coach/ui/views/stress_management/stress_management_view.da
     MaterialRoute(page: WorkoutPlanView),
     MaterialRoute(page: MealPlanView),
     MaterialRoute(page: StressManagementView),
+    MaterialRoute(page: LogExerciseView),
+    MaterialRoute(page: GenerateReportView),
 // @stacked-route
   ],
   dependencies: [
     LazySingleton(classType: BottomSheetService),
     LazySingleton(classType: DialogService),
     LazySingleton(classType: NavigationService),
-    // @stacked-service
+    LazySingleton(classType: LocalStorageService),
+// @stacked-service
   ],
   bottomsheets: [
     StackedBottomsheet(classType: NoticeSheet),

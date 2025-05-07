@@ -1,230 +1,453 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:stacked/stacked.dart';
-//
-// class WorkoutPlanViewModel extends BaseViewModel {
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-//
-//   String? activityLevel;
-//   List<Map<String, String>> exercises = [];
-//
-//   Future<void> fetchUserWorkoutPlan() async {
-//     setBusy(true);
-//     try {
-//       User? user = _auth.currentUser;
-//       if (user == null) {
-//         activityLevel = null;
-//         exercises = [];
-//         notifyListeners();
-//         return;
-//       }
-//
-//       // Fetch user responses from Firestore
-//       DocumentSnapshot doc =
-//           await _firestore.collection('user_responses').doc(user.uid).get();
-//       if (!doc.exists) {
-//         activityLevel = null;
-//         exercises = [];
-//         notifyListeners();
-//         return;
-//       }
-//
-//       // Extract responses
-//       List<dynamic> responses = doc['responses'] as List<dynamic>;
-//       Map<String, String> answers = {
-//         for (var response in responses) response['question']: response['answer']
-//       };
-//
-//       // Get activity level
-//       activityLevel =
-//           answers['How would you describe your current activity level?'];
-//       if (activityLevel != null) {
-//         _generateWorkoutPlan(activityLevel!);
-//       }
-//     } catch (e) {
-//       print('Error fetching workout plan: $e');
-//       activityLevel = null;
-//       exercises = [];
-//     } finally {
-//       setBusy(false);
-//     }
-//   }
-//
-//   void _generateWorkoutPlan(String activityLevel) {
-//     // Define workout plans based on activity level
-//     switch (activityLevel) {
-//       case 'Sedentary (little to no exercise)':
-//         exercises = [
-//           {'name': 'Walking', 'duration': '15 min', 'reps': 'Daily'},
-//           {'name': 'Stretching', 'duration': '10 min', 'reps': '3 sets'},
-//           {'name': 'Chair Squats', 'duration': '5 min', 'reps': '10 reps x 2'},
-//         ];
-//         break;
-//       case 'Lightly active (light exercise 1–3 days/week)':
-//         exercises = [
-//           {'name': 'Brisk Walking', 'duration': '20 min', 'reps': '3x/week'},
-//           {
-//             'name': 'Bodyweight Squats',
-//             'duration': '10 min',
-//             'reps': '15 reps x 3'
-//           },
-//           {'name': 'Arm Circles', 'duration': '5 min', 'reps': '2 sets'},
-//         ];
-//         break;
-//       case 'Moderately active (moderate exercise 3–5 days/week)':
-//         exercises = [
-//           {'name': 'Jogging', 'duration': '30 min', 'reps': '4x/week'},
-//           {'name': 'Push-Ups', 'duration': '10 min', 'reps': '20 reps x 3'},
-//           {'name': 'Plank', 'duration': '1 min', 'reps': '3 sets'},
-//         ];
-//         break;
-//       case 'Very active (intense exercise 6–7 days/week)':
-//         exercises = [
-//           {'name': 'Running', 'duration': '45 min', 'reps': '5x/week'},
-//           {'name': 'Burpees', 'duration': '15 min', 'reps': '15 reps x 4'},
-//           {'name': 'Mountain Climbers', 'duration': '10 min', 'reps': '3 sets'},
-//         ];
-//         break;
-//       default:
-//         exercises = [];
-//     }
-//     notifyListeners();
-//   }
-// }
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gluco_coach/app/app.locator.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import '../../../services/local_storage_service.dart';
+import '../../common/exercise.dart';
 
 class WorkoutPlanViewModel extends BaseViewModel {
-  String? activityLevel;
-  List<Map<String, String>> exercises = [];
+  final NavigationService _navigationService = locator<NavigationService>();
+  final LocalStorageService _localStorageService =
+  locator<LocalStorageService>();
+  List<Map<String, dynamic>> allExercises = [];
+  Map<String, dynamic>? currentExercise;
+  int currentExerciseIndex = 0;
+  DateTime? lastUpdatedDate;
+  DateTime? signupDate;
+
+  // Checkbox state
+  bool _isExerciseCompleted = false;
+  bool get isExerciseCompleted => _isExerciseCompleted;
+
+  // Replace with your YouTube Data API key
+  final String apiKey = 'AIzaSyAne1hGwsXzO2U8gjTUFF-BrWbrZDmjkfY';
+
+  // Simulated exercise log (you can replace this with actual logged data)
+  List<Map<String, dynamic>> exerciseLog = [];
+
+  // Firebase instances
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  WorkoutPlanViewModel() {
+    // Ensure LocalStorageService is initialized
+    _localStorageService.init();
+  }
 
   Future<void> fetchUserWorkoutPlan() async {
     setBusy(true);
     try {
-      _generateWorkoutPlan();
+      await _loadPersistedData();
+      await _fetchSignupDate();
+      await _fetchExercises();
+      _setDailyExercise();
+      _generateExerciseLog();
+      // Check if the current exercise is already logged for today
+      await _checkIfExerciseLogged();
     } catch (e) {
       print('Error fetching workout plan: $e');
-      exercises = [];
+      _setDailyExerciseWithoutPersistence();
+      _generateExerciseLog();
+      setExerciseCompleted(false);
     } finally {
       setBusy(false);
     }
   }
 
-  void _generateWorkoutPlan() {
-    exercises = [
-      {
-        'week': 'Week 1: Aerobic Exercises (Boost Insulin Sensitivity)',
-        'name': 'Brisk Walking',
-        'duration': '30–45 min',
-        'description': 'Improves glucose metabolism and insulin function'
-      },
-      {
-        'name': 'Cycling',
-        'duration': '20–40 min',
-        'description': 'Lowers blood sugar levels and enhances heart health'
-      },
-      {
-        'name': 'Swimming',
-        'duration': '30 min',
-        'description': 'Gentle on joints while improving insulin function'
-      },
-      {
-        'name': 'Jump Rope',
-        'duration': '10–20 min',
-        'description': 'High-intensity for better glucose utilization'
-      },
-      {
-        'name': 'Dancing/Zumba',
-        'duration': '30 min',
-        'description': 'Fun and effective for lowering blood sugar'
-      },
-      {
-        'week':
-            'Week 2: Strength Training (Muscle Improves Glucose Absorption)',
-        'name': 'Bodyweight Squats',
-        'duration': '3 sets x 12 reps',
-        'description': 'Activates large muscles, aiding glucose uptake'
-      },
-      {
-        'name': 'Push-Ups',
-        'duration': '3 sets x 10 reps',
-        'description': 'Increases upper-body strength and metabolism'
-      },
-      {
-        'name': 'Resistance Band Rows',
-        'duration': '3 sets x 12 reps',
-        'description': 'Strengthens back and improves insulin sensitivity'
-      },
-      {
-        'name': 'Lunges',
-        'duration': '3 sets x 10 reps per leg',
-        'description': 'Builds lower-body strength and endurance'
-      },
-      {
-        'name': 'Plank with Shoulder Taps',
-        'duration': '3 sets x 30 sec',
-        'description': 'Core stability helps regulate metabolism'
-      },
-      {
-        'week':
-            'Week 3: Flexibility & Stress Reduction (Lower Cortisol, Improve Insulin)',
-        'name': 'Yoga Poses',
-        'duration': '15–20 min',
-        'description': 'Reduces stress hormones affecting blood sugar'
-      },
-      {
-        'name': 'Deep Breathing',
-        'duration': '5 min',
-        'description': 'Lowers blood pressure and cortisol levels'
-      },
-      {
-        'name': 'Tai Chi',
-        'duration': '15 min',
-        'description': 'Enhances insulin regulation and balance'
-      },
-      {
-        'name': 'Foam Rolling',
-        'duration': '10 min',
-        'description': 'Reduces muscle stiffness, improving movement efficiency'
-      },
-      {
-        'name': 'Guided Meditation',
-        'duration': '10 min',
-        'description': 'Lowers stress-induced blood sugar spikes'
-      },
-      {
-        'week': 'Week 4: High-Impact Exercises for Diabetes Control',
-        'name': 'Jumping Jacks',
-        'duration': '3 sets x 30 sec',
-        'description':
-            'Full-body aerobic movement that enhances insulin efficiency'
-      },
-      {
-        'name': 'Leg Raises',
-        'duration': '3 sets x 12 reps',
-        'description':
-            'Strengthens core muscles and improves glucose metabolism'
-      },
-      {
-        'name': 'Seated Marching',
-        'duration': '3 sets x 20 reps',
-        'description':
-            'Ideal for elderly diabetics to keep blood sugar in check'
-      },
-      {
-        'name': 'Wall Sits',
-        'duration': '3 sets x 30 sec',
-        'description':
-            'Engages lower body muscles to improve glucose utilization'
-      },
-      {
-        'name': 'Battle Ropes (If Available)',
-        'duration': '3 sets x 20 sec',
-        'description': 'HIIT workout to improve insulin sensitivity'
-      },
-    ];
+  Future<void> _fetchSignupDate() async {
+    User? user = _auth.currentUser;
+    if (user == null) {
+      print('No user logged in');
+      signupDate = DateTime.now();
+      return;
+    }
+
+    try {
+      DocumentSnapshot userDoc =
+      await _firestore.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        if (userData.containsKey('signupDate')) {
+          signupDate = DateTime.parse(userData['signupDate']);
+          print('Signup date fetched: $signupDate');
+        } else {
+          signupDate = DateTime.now();
+          await _firestore.collection('users').doc(user.uid).set({
+            'signupDate': signupDate!.toIso8601String(),
+          }, SetOptions(merge: true));
+          print('Signup date not found, set to: $signupDate');
+        }
+      } else {
+        signupDate = DateTime.now();
+        await _firestore.collection('users').doc(user.uid).set({
+          'signupDate': signupDate!.toIso8601String(),
+        }, SetOptions(merge: true));
+        print('User document not found, set signup date to: $signupDate');
+      }
+    } catch (e) {
+      print('Error fetching signup date: $e');
+      signupDate = DateTime.now();
+    }
+  }
+
+  Future<void> _checkIfExerciseLogged() async {
+    if (currentExercise == null || currentExercise!['name'] == 'No Exercise') {
+      setExerciseCompleted(false);
+      return;
+    }
+
+    DateTime? lastLogDate = _localStorageService.lastExerciseLogDate;
+    if (lastLogDate != null) {
+      DateTime now = DateTime.now();
+      DateTime todayStart = DateTime(now.year, now.month, now.day);
+      DateTime lastLogDay =
+      DateTime(lastLogDate.year, lastLogDate.month, lastLogDate.day);
+
+      if (lastLogDay.isAtSameMomentAs(todayStart) ||
+          lastLogDay.isAfter(todayStart)) {
+        setExerciseCompleted(true);
+        print('Exercise already logged today according to local storage.');
+        return;
+      }
+    }
+
+    User? user = _auth.currentUser;
+    if (user == null) {
+      setExerciseCompleted(false);
+      return;
+    }
+
+    DateTime now = DateTime.now();
+    DateTime todayStart = DateTime(now.year, now.month, now.day);
+    DateTime todayEnd = todayStart.add(const Duration(days: 1));
+
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('exercises')
+          .where('type', isEqualTo: currentExercise!['name'])
+          .where('timestamp',
+          isGreaterThanOrEqualTo: todayStart, isLessThan: todayEnd)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        setExerciseCompleted(true);
+        _localStorageService.lastExerciseLogDate = DateTime.now();
+      } else {
+        setExerciseCompleted(false);
+      }
+    } catch (e) {
+      print('Error checking logged exercise: $e');
+      setExerciseCompleted(false);
+    }
+  }
+
+  Future<void> _fetchExercises() async {
+    allExercises = ExerciseData.getExercises();
+
+    for (var exercise in allExercises) {
+      if (exercise.containsKey('videoUrls')) {
+        List<String> videoUrls = exercise['videoUrls'];
+        List<Map<String, String>> videos = [];
+        for (var url in videoUrls) {
+          String videoId = _extractVideoId(url);
+          String? title = await _fetchVideoTitle(videoId);
+          videos.add({
+            'url': url,
+            'thumbnail': 'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+            'title': title ?? 'Workout Video',
+          });
+        }
+        exercise['videos'] = videos;
+      }
+    }
+
+    print('Fetched exercises: $allExercises');
+  }
+
+  void _generateExerciseLog() {
+    exerciseLog = allExercises
+        .where((exercise) => !exercise.containsKey('week'))
+        .map((exercise) {
+      return {
+        'name': exercise['name'],
+        'duration': exercise['duration'],
+        'description': exercise['description'],
+        'date': DateTime.now()
+            .subtract(Duration(days: allExercises.indexOf(exercise))),
+      };
+    }).toList();
 
     notifyListeners();
+  }
+
+  String _extractVideoId(String url) {
+    if (url.contains('youtube.com/shorts/')) {
+      return url.split('youtube.com/shorts/')[1].split('?')[0];
+    } else if (url.contains('watch?v=')) {
+      return url.split('watch?v=')[1].split('&')[0];
+    }
+    return '';
+  }
+
+  Future<String?> _fetchVideoTitle(String videoId) async {
+    if (videoId.isEmpty) return null;
+
+    final String url =
+        'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=$videoId&key=$apiKey';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['items'] != null && data['items'].isNotEmpty) {
+          return data['items'][0]['snippet']['title'];
+        } else {
+          print('No video found for ID: $videoId');
+          return null;
+        }
+      } else {
+        print('Failed to fetch video title: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching video title: $e');
+      return null;
+    }
+  }
+
+  Future<void> _loadPersistedData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? lastUpdatedDateString = prefs.getString('lastUpdatedDate');
+      currentExerciseIndex = prefs.getInt('currentExerciseIndex') ?? 0;
+
+      if (lastUpdatedDateString != null) {
+        lastUpdatedDate = DateTime.parse(lastUpdatedDateString);
+      } else {
+        lastUpdatedDate = null;
+      }
+
+      print(
+          'Loaded data: lastUpdatedDate=$lastUpdatedDate, currentExerciseIndex=$currentExerciseIndex');
+    } catch (e) {
+      print('Error loading SharedPreferences: $e');
+      lastUpdatedDate = null;
+      currentExerciseIndex = 0;
+    }
+  }
+
+  Future<void> _saveCurrentState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('currentExerciseIndex', currentExerciseIndex);
+      await prefs.setString(
+          'lastUpdatedDate', DateTime.now().toIso8601String());
+      print(
+          'Saved state: currentExerciseIndex=$currentExerciseIndex, lastUpdatedDate=${DateTime.now()}');
+    } catch (e) {
+      print('Error saving to SharedPreferences: $e');
+    }
+  }
+
+  Future<void> _resetSignupDate() async {
+    User? user = _auth.currentUser;
+    if (user == null) {
+      print('No user logged in, cannot reset signup date');
+      return;
+    }
+
+    try {
+      signupDate = DateTime.now();
+      await _firestore.collection('users').doc(user.uid).set({
+        'signupDate': signupDate!.toIso8601String(),
+      }, SetOptions(merge: true));
+      print('Signup date reset to: $signupDate');
+
+      // Optionally save to SharedPreferences if using local storage fallback
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('signupDate', signupDate!.toIso8601String());
+    } catch (e) {
+      print('Error resetting signup date: $e');
+    }
+  }
+
+  void _setDailyExercise() {
+    List<Map<String, dynamic>> dailyExercises = allExercises
+        .where((exercise) => !exercise.containsKey('week'))
+        .toList();
+
+    if (dailyExercises.isEmpty) {
+      print('No exercises found.');
+      currentExercise = {
+        'name': 'No Exercise',
+        'duration': '',
+        'description': 'No exercises available.',
+      };
+      notifyListeners();
+      return;
+    }
+
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+
+    if (signupDate == null) {
+      signupDate = today;
+      print('Signup date not set, defaulting to today: $signupDate');
+    }
+
+    DateTime signupDay =
+    DateTime(signupDate!.year, signupDate!.month, signupDate!.day);
+    int daysSinceSignup = today.difference(signupDay).inDays;
+
+    if (daysSinceSignup < 0) {
+      daysSinceSignup = 0;
+      print('Days since signup is negative, setting to 0');
+    }
+
+    // Calculate the current exercise index
+    currentExerciseIndex = daysSinceSignup % dailyExercises.length;
+    print('Days since signup: $daysSinceSignup, Initial exercise index: $currentExerciseIndex');
+
+    // Check if the user is on the last exercise
+    if (currentExerciseIndex == dailyExercises.length - 1) {
+      // Reset the exercise counter by updating the signup date to today
+      _resetSignupDate();
+      signupDate = today; // Update the local signupDate
+      daysSinceSignup = 0; // Reset days since signup
+      currentExerciseIndex = 0; // Start from the first exercise
+      print('Reached the last exercise, resetting to index 0');
+    }
+
+    // Update lastUpdatedDate to today
+    lastUpdatedDate = today;
+    _saveCurrentState();
+
+    currentExercise = dailyExercises[currentExerciseIndex];
+    print('Selected exercise: ${currentExercise!['name']}');
+    notifyListeners();
+  }
+
+  void _setDailyExerciseWithoutPersistence() {
+    List<Map<String, dynamic>> dailyExercises = allExercises
+        .where((exercise) => !exercise.containsKey('week'))
+        .toList();
+
+    if (dailyExercises.isEmpty) {
+      currentExercise = {
+        'name': 'No Exercise',
+        'duration': '',
+        'description': 'No exercises available.',
+      };
+    } else {
+      currentExerciseIndex = 0;
+      currentExercise = dailyExercises[currentExerciseIndex];
+      print('Fallback selected exercise: ${currentExercise!['name']}');
+    }
+    notifyListeners();
+  }
+
+  Future<void> launchVideo(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      print('Could not launch $url');
+    }
+  }
+
+  void setExerciseCompleted(bool value) {
+    _isExerciseCompleted = value;
+    notifyListeners();
+  }
+
+  Future<void> logExercise(int durationInMinutes) async {
+    setBusy(true);
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) {
+        Fluttertoast.showToast(
+          msg: "Please log in to save your exercise.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        setExerciseCompleted(false);
+        setBusy(false);
+        return;
+      }
+
+      if (currentExercise == null ||
+          currentExercise!['name'] == 'No Exercise') {
+        Fluttertoast.showToast(
+          msg: "No valid exercise to log.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        setExerciseCompleted(false);
+        setBusy(false);
+        return;
+      }
+
+      String userId = user.uid;
+      DateTime now = DateTime.now();
+      Map<String, dynamic> exerciseData = {
+        'type': currentExercise!['name'],
+        'duration': durationInMinutes,
+        'date': now.toIso8601String(),
+        'timestamp': now,
+      };
+
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('exercises')
+          .add(exerciseData);
+
+      _localStorageService.lastExerciseLogDate = now;
+
+      Fluttertoast.showToast(
+        msg: "Exercise logged successfully!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      setExerciseCompleted(true);
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Failed to log exercise: $e",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      setExerciseCompleted(false);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  void back() {
+    _navigationService.back(
+      result: true,
+    );
   }
 }

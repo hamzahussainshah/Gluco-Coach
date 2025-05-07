@@ -17,7 +17,7 @@ class StartupView extends StackedView<StartupViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Color(0xFFA6E3E9),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -32,9 +32,17 @@ class StartupView extends StackedView<StartupViewModel> {
                     color: AppColors.whiteColor,
                   ),
                 ),
+                TyperAnimatedText(
+                  'Take Control, Stay Healthy!',
+                  textStyle: AppTextStyles.xlSemibold.copyWith(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.whiteColor,
+                  ),
+                ),
               ],
               totalRepeatCount: 1,
-              pause: const Duration(milliseconds: 1000),
+              pause: const Duration(milliseconds: 500),
               displayFullTextOnTap: true,
               stopPauseOnTap: true,
             )

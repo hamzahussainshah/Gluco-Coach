@@ -37,7 +37,7 @@ class SignupViewModel extends BaseViewModel {
         "Sign-up successful! Welcome, ${nameController.text}",
       );
 
-      _navigationService.navigateToHomeView(); // Navigate to Home
+      _navigationService.navigateToLoginView();
     } on FirebaseAuthException catch (e) {
       // Handle FirebaseAuth-specific errors
       String errorMessage = _getFirebaseAuthErrorMessage(e.code);

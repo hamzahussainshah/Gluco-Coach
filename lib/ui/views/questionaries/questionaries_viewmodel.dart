@@ -125,6 +125,7 @@ class QuestionariesViewModel extends BaseViewModel {
         'Gluten-free',
         'Low-carb',
         'No restrictions',
+        'Non-vegetarian',
         'Other (please specify)'
       ],
     },

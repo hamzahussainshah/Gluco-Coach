@@ -20,7 +20,7 @@ class SignupView extends StackedView<SignupViewModel> {
     return ModalProgressHUD(
         color: Colors.black54,
         opacity: 1,
-        progressIndicator: LoadingAnimationWidget.threeArchedCircle(
+        progressIndicator: LoadingAnimationWidget.discreteCircle(
           color: Colors.blueAccent,
           size: 50,
         ),

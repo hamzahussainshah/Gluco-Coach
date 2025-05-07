@@ -5,13 +5,17 @@
 // **************************************************************************
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:flutter/material.dart' as _i14;
+import 'package:flutter/material.dart' as _i16;
 import 'package:flutter/material.dart';
 import 'package:gluco_coach/ui/views/dashboard/dashboard_view.dart' as _i8;
 import 'package:gluco_coach/ui/views/feed/feed_view.dart' as _i10;
 import 'package:gluco_coach/ui/views/forgot_password/forgot_password_view.dart'
     as _i6;
+import 'package:gluco_coach/ui/views/generate_report/generate_report_view.dart'
+    as _i15;
 import 'package:gluco_coach/ui/views/home/home_view.dart' as _i2;
+import 'package:gluco_coach/ui/views/log_exercise/log_exercise_view.dart'
+    as _i14;
 import 'package:gluco_coach/ui/views/login/login_view.dart' as _i4;
 import 'package:gluco_coach/ui/views/meal_plan/meal_plan_view.dart' as _i12;
 import 'package:gluco_coach/ui/views/questionaries/questionaries_view.dart'
@@ -24,7 +28,7 @@ import 'package:gluco_coach/ui/views/today/today_view.dart' as _i9;
 import 'package:gluco_coach/ui/views/workout_plan/workout_plan_view.dart'
     as _i11;
 import 'package:stacked/stacked.dart' as _i1;
-import 'package:stacked_services/stacked_services.dart' as _i15;
+import 'package:stacked_services/stacked_services.dart' as _i17;
 
 class Routes {
   static const homeView = '/home-view';
@@ -51,6 +55,10 @@ class Routes {
 
   static const stressManagementView = '/stress-management-view';
 
+  static const logExerciseView = '/log-exercise-view';
+
+  static const generateReportView = '/generate-report-view';
+
   static const all = <String>{
     homeView,
     startupView,
@@ -64,6 +72,8 @@ class Routes {
     workoutPlanView,
     mealPlanView,
     stressManagementView,
+    logExerciseView,
+    generateReportView,
   };
 }
 
@@ -117,78 +127,98 @@ class StackedRouter extends _i1.RouterBase {
       Routes.stressManagementView,
       page: _i13.StressManagementView,
     ),
+    _i1.RouteDef(
+      Routes.logExerciseView,
+      page: _i14.LogExerciseView,
+    ),
+    _i1.RouteDef(
+      Routes.generateReportView,
+      page: _i15.GenerateReportView,
+    ),
   ];
 
   final _pagesMap = <Type, _i1.StackedRouteFactory>{
     _i2.HomeView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i2.HomeView(),
         settings: data,
       );
     },
     _i3.StartupView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i3.StartupView(),
         settings: data,
       );
     },
     _i4.LoginView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i4.LoginView(),
         settings: data,
       );
     },
     _i5.SignupView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i5.SignupView(),
         settings: data,
       );
     },
     _i6.ForgotPasswordView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i6.ForgotPasswordView(),
         settings: data,
       );
     },
     _i7.QuestionariesView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i7.QuestionariesView(),
         settings: data,
       );
     },
     _i8.DashboardView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i8.DashboardView(),
         settings: data,
       );
     },
     _i9.TodayView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i9.TodayView(),
         settings: data,
       );
     },
     _i10.FeedView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i10.FeedView(),
         settings: data,
       );
     },
     _i11.WorkoutPlanView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i11.WorkoutPlanView(),
         settings: data,
       );
     },
     _i12.MealPlanView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i12.MealPlanView(),
         settings: data,
       );
     },
     _i13.StressManagementView: (data) {
-      return _i14.MaterialPageRoute<dynamic>(
+      return _i16.MaterialPageRoute<dynamic>(
         builder: (context) => const _i13.StressManagementView(),
+        settings: data,
+      );
+    },
+    _i14.LogExerciseView: (data) {
+      return _i16.MaterialPageRoute<dynamic>(
+        builder: (context) => const _i14.LogExerciseView(),
+        settings: data,
+      );
+    },
+    _i15.GenerateReportView: (data) {
+      return _i16.MaterialPageRoute<dynamic>(
+        builder: (context) => const _i15.GenerateReportView(),
         settings: data,
       );
     },
@@ -201,7 +231,7 @@ class StackedRouter extends _i1.RouterBase {
   Map<Type, _i1.StackedRouteFactory> get pagesMap => _pagesMap;
 }
 
-extension NavigatorStateExtension on _i15.NavigationService {
+extension NavigatorStateExtension on _i17.NavigationService {
   Future<dynamic> navigateToHomeView([
     int? routerId,
     bool preventDuplicates = true,
@@ -370,6 +400,34 @@ extension NavigatorStateExtension on _i15.NavigationService {
         transition: transition);
   }
 
+  Future<dynamic> navigateToLogExerciseView([
+    int? routerId,
+    bool preventDuplicates = true,
+    Map<String, String>? parameters,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
+        transition,
+  ]) async {
+    return navigateTo<dynamic>(Routes.logExerciseView,
+        id: routerId,
+        preventDuplicates: preventDuplicates,
+        parameters: parameters,
+        transition: transition);
+  }
+
+  Future<dynamic> navigateToGenerateReportView([
+    int? routerId,
+    bool preventDuplicates = true,
+    Map<String, String>? parameters,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
+        transition,
+  ]) async {
+    return navigateTo<dynamic>(Routes.generateReportView,
+        id: routerId,
+        preventDuplicates: preventDuplicates,
+        parameters: parameters,
+        transition: transition);
+  }
+
   Future<dynamic> replaceWithHomeView([
     int? routerId,
     bool preventDuplicates = true,
@@ -532,6 +590,34 @@ extension NavigatorStateExtension on _i15.NavigationService {
         transition,
   ]) async {
     return replaceWith<dynamic>(Routes.stressManagementView,
+        id: routerId,
+        preventDuplicates: preventDuplicates,
+        parameters: parameters,
+        transition: transition);
+  }
+
+  Future<dynamic> replaceWithLogExerciseView([
+    int? routerId,
+    bool preventDuplicates = true,
+    Map<String, String>? parameters,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
+        transition,
+  ]) async {
+    return replaceWith<dynamic>(Routes.logExerciseView,
+        id: routerId,
+        preventDuplicates: preventDuplicates,
+        parameters: parameters,
+        transition: transition);
+  }
+
+  Future<dynamic> replaceWithGenerateReportView([
+    int? routerId,
+    bool preventDuplicates = true,
+    Map<String, String>? parameters,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
+        transition,
+  ]) async {
+    return replaceWith<dynamic>(Routes.generateReportView,
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
