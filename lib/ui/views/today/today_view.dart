@@ -31,15 +31,19 @@ class TodayView extends StackedView<TodayViewModel> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Good Morning, ${viewModel.name}",
-                        style: TextStyle(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(
-                              0xFF1A3C6D), // Dark blue for contrast
+                      Expanded(
+                        child: Text(
+                          "Good Morning, ${viewModel.name}",
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1A3C6D),
+                          ),
+                          softWrap: true,
+                          maxLines: 2,
                         ),
                       ),
+
                       PopupMenuButton<int>(
                         onSelected: (value) {
                           // Handle any actions if needed (e.g., logout)
