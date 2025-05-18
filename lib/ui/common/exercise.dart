@@ -118,6 +118,7 @@ class ExerciseData {
         'name': 'Day 5: Core Strengthening',
         'duration': '10-15 min',
         'description': 'Seated leg lifts and gentle ab crunches',
+
       },
       {
         'name': 'Day 6: Stretching & Meditation',
@@ -137,6 +138,7 @@ class ExerciseData {
         'name': 'Day 1: 30-minute Cycling',
         'duration': '30 min',
         'description': 'Improves cardiovascular endurance',
+
       },
       {
         'name': 'Day 2: Resistance Band Exercises',

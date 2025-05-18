@@ -4,6 +4,7 @@ import 'package:gluco_coach/app/app.bottomsheets.dart';
 import 'package:gluco_coach/app/app.dialogs.dart';
 import 'package:gluco_coach/app/app.locator.dart';
 import 'package:gluco_coach/app/app.router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -15,10 +16,35 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await requestPermissions();
+
   setupDialogUi();
   setupBottomSheetUi();
   runApp(const MainApp());
 }
+
+Future<void> requestPermissions() async {
+  final permissionsToRequest = <Permission>[];
+
+  if (await Permission.storage.isDenied || await Permission.storage.isPermanentlyDenied) {
+    permissionsToRequest.add(Permission.storage);
+  }
+
+  if (await Permission.photos.isDenied || await Permission.photos.isPermanentlyDenied) {
+    permissionsToRequest.add(Permission.photos);
+  }
+
+  if (permissionsToRequest.isNotEmpty) {
+    Map<Permission, PermissionStatus> statuses = await permissionsToRequest.request();
+
+    statuses.forEach((permission, status) async {
+      if (status.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+    });
+  }
+}
+
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
